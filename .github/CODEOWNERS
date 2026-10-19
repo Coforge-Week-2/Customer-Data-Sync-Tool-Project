@@ -1,0 +1,16 @@
+*                                   @AnshHarjai-coforge
+/src/customer_sync/api_client.py    @this-ved-dev
+/tests/test_api_client.py           @this-ved-dev
+/tests/fixtures/api/                @this-ved-dev
+/scripts/capture_fixture.py         @this-ved-dev
+/docs/api-client.md                 @this-ved-dev
+/src/customer_sync/cleaning.py      @Julian-Coforge
+/tests/test_cleaning.py             @Julian-Coforge
+/tests/fixtures/cleaning/           @Julian-Coforge
+/docs/cleaning.md                   @Julian-Coforge
+/src/customer_sync/storage.py       @nikita-ravi-coforge
+/tests/test_storage.py              @nikita-ravi-coforge
+/tests/fixtures/storage/            @nikita-ravi-coforge
+/docs/storage.md                    @nikita-ravi-coforge
+/src/customer_sync/contracts.py     @AnshHarjai-coforge @this-ved-dev @Julian-Coforge @nikita-ravi-coforge
+/PLAN.md                            @AnshHarjai-coforge
