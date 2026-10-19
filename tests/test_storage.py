@@ -1,5 +1,6 @@
 """Tests for SQLite storage. Owner: Nikita."""
 
+import re
 import sqlite3
 from contextlib import closing
 from dataclasses import replace
@@ -7,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from customer_sync.contracts import Customer
+from customer_sync.contracts import Customer, UpsertCounts
 from customer_sync.storage import CustomerStore
 
 NOW = "2026-10-19T12:00:00Z"
@@ -107,3 +108,96 @@ def test_close_without_context_manager(db_path: Path) -> None:
 
     with pytest.raises(sqlite3.ProgrammingError):
         store.count()
+
+
+def three_customers() -> list[Customer]:
+    return [
+        make_customer("a", email="a@example.com"),
+        make_customer("b", email="b@example.com", phone=None, city=None, country=None),
+        make_customer("c", email="c@example.com"),
+    ]
+
+
+def timestamps(db_path: Path, uuid: str) -> tuple[str, str]:
+    """Return (created_at, updated_at) for one row, read with plain sqlite3."""
+    with closing(sqlite3.connect(db_path)) as conn:
+        row = conn.execute(
+            "SELECT created_at, updated_at FROM customers WHERE uuid = ?", (uuid,)
+        ).fetchone()
+    return row[0], row[1]
+
+
+def backdate(db_path: Path, uuid: str) -> None:
+    """Set both timestamps to a fixed past value so later changes are visible."""
+    with closing(sqlite3.connect(db_path)) as conn, conn:
+        conn.execute(
+            "UPDATE customers SET created_at = ?, updated_at = ? WHERE uuid = ?",
+            (NOW, NOW, uuid),
+        )
+
+
+def test_upsert_new_customers_are_added(db_path: Path) -> None:
+    with CustomerStore(db_path) as store:
+        counts = store.upsert_many(three_customers())
+        assert counts == UpsertCounts(added=3, updated=0, unchanged=0)
+        assert store.all() == three_customers()
+
+    created_at, updated_at = timestamps(db_path, "a")
+    assert created_at == updated_at
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", created_at)
+
+
+def test_upsert_same_customers_again_is_unchanged(db_path: Path) -> None:
+    with CustomerStore(db_path) as store:
+        store.upsert_many(three_customers())
+        counts = store.upsert_many(three_customers())
+        assert counts == UpsertCounts(added=0, updated=0, unchanged=3)
+        assert store.count() == 3
+
+
+def test_upsert_changed_phone_is_updated(db_path: Path) -> None:
+    customers = three_customers()
+    with CustomerStore(db_path) as store:
+        store.upsert_many(customers)
+        customers[0] = replace(customers[0], phone="000")
+        counts = store.upsert_many(customers)
+        assert counts == UpsertCounts(added=0, updated=1, unchanged=2)
+        assert store.get("a") == customers[0]
+        assert store.count() == 3
+
+
+def test_update_keeps_created_at_and_moves_updated_at(db_path: Path) -> None:
+    with CustomerStore(db_path) as store:
+        store.upsert_many([make_customer("a")])
+        backdate(db_path, "a")
+        store.upsert_many([make_customer("a", city="Paris")])
+
+    created_at, updated_at = timestamps(db_path, "a")
+    assert created_at == NOW
+    assert updated_at != NOW
+
+
+def test_unchanged_run_keeps_updated_at(db_path: Path) -> None:
+    with CustomerStore(db_path) as store:
+        store.upsert_many([make_customer("a")])
+        backdate(db_path, "a")
+        store.upsert_many([make_customer("a")])
+
+    assert timestamps(db_path, "a") == (NOW, NOW)
+
+
+def test_upsert_mixed_batch(db_path: Path) -> None:
+    same = make_customer("same", email="same@example.com")
+    changed = make_customer("changed", email="changed@example.com")
+    new = make_customer("new", email="new@example.com")
+    with CustomerStore(db_path) as store:
+        store.upsert_many([same, changed])
+        counts = store.upsert_many(iter([same, replace(changed, last_name="Byron"), new]))
+        assert counts == UpsertCounts(added=1, updated=1, unchanged=1)
+        assert store.get("changed") == replace(changed, last_name="Byron")
+        assert store.count() == 3
+
+
+def test_upsert_empty_batch(db_path: Path) -> None:
+    with CustomerStore(db_path) as store:
+        assert store.upsert_many([]) == UpsertCounts(added=0, updated=0, unchanged=0)
