@@ -24,3 +24,10 @@ def test_valid_record_maps_to_customer(raw: RawRecord) -> None:
         country="Netherlands",
         registered_at="2020-12-29T23:12:33Z",
     )
+
+def test_email_wrong_type_is_rejected(raw: RawRecord) -> None:
+    raw["email"] = 123
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.WRONG_TYPE
+    assert "email" in exc.value.reason
