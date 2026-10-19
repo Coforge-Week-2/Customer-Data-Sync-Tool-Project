@@ -8,7 +8,9 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from customer_sync.contracts import RawRecord
+import requests
+
+from customer_sync.contracts import ApiError, RawRecord
 
 
 class RandomUserClient:
@@ -38,16 +40,26 @@ class RandomUserClient:
         self.max_retries = max_retries
         self.backoff = backoff
         self.timeout = timeout
-        self.session = session
+        self.session = session if session is not None else requests.Session()
         self.sleep = sleep
 
     def fetch_page(self, page: int) -> list[RawRecord]:
         """Return one page of raw API records. Raises ApiError."""
-        raise NotImplementedError
+        params: dict[str, str | int] = {"seed": self.seed, "results": self.results, "page": page}
+        try:
+            response = self.session.get(self.base_url, params=params, timeout=self.timeout)
+            response.raise_for_status()
+            payload = response.json()
+        except (requests.RequestException, ValueError) as exc:
+            raise ApiError(f"page {page} from {self.base_url} failed: {exc}") from exc
+        results = payload.get("results") if isinstance(payload, dict) else None
+        if not isinstance(results, list):
+            raise ApiError(f"page {page} from {self.base_url} has no 'results' list")
+        return results
 
     def fetch_records(self) -> list[RawRecord]:
         """Return raw records for every configured page. Raises ApiError."""
-        raise NotImplementedError
+        return [r for page in range(1, self.pages + 1) for r in self.fetch_page(page)]
 
 
 class FileSource:
