@@ -17,10 +17,11 @@ The tool also supports `--from-file <path>` to read a saved API response (for de
 
 ## 2. Data Source
 
-- API: `https://randomuser.me/api/` (no API key required)
+- API: `https://randomuser.me/api/1.4/` (no API key required)
 - Use the `seed`, `results`, and `page` query parameters to get stable, reproducible data.
+- Default real run: `seed=team2`, `results=50`, `pages=1`.
 
-Example: `https://randomuser.me/api/?seed=team2&results=50&page=1`
+Example: `https://randomuser.me/api/1.4/?seed=team2&results=50&page=1`
 
 ## 3. Agreed Decisions (LOCKED)
 
@@ -28,10 +29,16 @@ These are confirmed on Monday, before coding begins, and recorded in the README.
 
 | Decision | Value |
 |---|---|
-| Clean customer record shape (fields and types) | **TBD: fill in once agreed, mirror in README** |
-| Unique identifier | **TBD: `login.uuid` or `email`** (pick one) |
+| Clean customer record shape | `uuid`, `first_name`, `last_name`, `email`, `registered_at` (`str`, required); `phone`, `city`, `country` (`str` or `None`) |
+| `registered_at` | UTC `YYYY-MM-DDTHH:MM:SSZ` |
+| Unique identifier | `login.uuid` |
+| Bad records | Safe normalisation only (trim, lowercase email, numeric phone to text). Otherwise reject with a reason. Never invent a missing value. |
+| Reject codes | `missing_field`, `wrong_type`, `invalid_value`, `duplicate` |
+| In-batch duplicates | Repeated `uuid`, or repeated email under a different uuid: reject. First occurrence kept. |
+| API | `https://randomuser.me/api/1.4/` |
+| Default fetch | `seed=team2`, `results=50`, `pages=1` |
 
-> Agents: if these are still TBD, do not invent them. Ask the team or check the README for the agreed values.
+> Agents: these values are locked. Mirror them in the README. Change them only through the contract-change process in PLAN.md §2.6.
 
 ## 4. Architecture
 
