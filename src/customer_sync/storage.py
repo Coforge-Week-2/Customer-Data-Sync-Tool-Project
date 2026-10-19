@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import sqlite3
 from collections.abc import Iterable
+from datetime import UTC, datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -26,6 +27,15 @@ _FIELDS = (
     "registered_at",
 )
 _SELECT = f"SELECT {', '.join(_FIELDS)} FROM customers"
+_INSERT = (
+    f"INSERT INTO customers ({', '.join(_FIELDS)}, created_at, updated_at) "
+    f"VALUES ({', '.join('?' * (len(_FIELDS) + 2))})"
+)
+# Every field except uuid, then updated_at; created_at is never touched.
+_UPDATE = (
+    f"UPDATE customers SET {', '.join(f'{name} = ?' for name in _FIELDS[1:])}, "
+    "updated_at = ? WHERE uuid = ?"
+)
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS customers (
@@ -41,6 +51,11 @@ CREATE TABLE IF NOT EXISTS customers (
     updated_at TEXT NOT NULL
 )
 """
+
+
+def _values(customer: Customer) -> tuple[str | None, ...]:
+    """Customer fields in _FIELDS order."""
+    return tuple(getattr(customer, name) for name in _FIELDS)
 
 
 class CustomerStore:
@@ -65,7 +80,20 @@ class CustomerStore:
 
     def upsert_many(self, customers: Iterable[Customer]) -> UpsertCounts:
         """Insert new rows and update changed ones. Raises StorageError."""
-        raise NotImplementedError
+        now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        added = updated = unchanged = 0
+        with self._conn:
+            for customer in customers:
+                existing = self.get(customer.uuid)
+                if existing is None:
+                    self._conn.execute(_INSERT, (*_values(customer), now, now))
+                    added += 1
+                elif existing != customer:
+                    self._conn.execute(_UPDATE, (*_values(customer)[1:], now, customer.uuid))
+                    updated += 1
+                else:
+                    unchanged += 1
+        return UpsertCounts(added=added, updated=updated, unchanged=unchanged)
 
     def get(self, uuid: str) -> Customer | None:
         """Return one customer, or None when the uuid is absent."""
