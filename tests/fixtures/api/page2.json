@@ -1,0 +1,290 @@
+{
+  "results": [
+    {
+      "gender": "female",
+      "name": {
+        "title": "Ms",
+        "first": "Mechthild",
+        "last": "Markgraf"
+      },
+      "location": {
+        "street": {
+          "number": 5433,
+          "name": "Drosselweg"
+        },
+        "city": "Dornstetten",
+        "state": "Nordrhein-Westfalen",
+        "country": "Germany",
+        "postcode": 59951,
+        "coordinates": {
+          "latitude": "-55.4035",
+          "longitude": "135.5462"
+        },
+        "timezone": {
+          "offset": "+10:00",
+          "description": "Eastern Australia, Guam, Vladivostok"
+        }
+      },
+      "email": "mechthild.markgraf@example.com",
+      "login": {
+        "uuid": "b9af8339-843b-4a97-ac61-bbafd488ed6e",
+        "username": "bigpanda738",
+        "password": "ghosts",
+        "salt": "qoSPLENY",
+        "md5": "3e7384e097a8154014db4ed00eebff55",
+        "sha1": "bf893ba6135b7afd562221c72e6b3f5aee309c01",
+        "sha256": "224130aabacf4fb2ba9881d4e9638bd3190277883bf4b8d16f5890ec12c4ecb8"
+      },
+      "dob": {
+        "date": "1981-09-14T16:51:56.843Z",
+        "age": 45
+      },
+      "registered": {
+        "date": "2022-04-18T08:17:38.398Z",
+        "age": 4
+      },
+      "phone": "0255-8838151",
+      "cell": "0173-7364490",
+      "id": {
+        "name": "SVNR",
+        "value": "69 140981 M 657"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/80.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/80.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/80.jpg"
+      },
+      "nat": "DE"
+    },
+    {
+      "gender": "female",
+      "name": {
+        "title": "Ms",
+        "first": "Mar",
+        "last": "Iglesias"
+      },
+      "location": {
+        "street": {
+          "number": 5826,
+          "name": "Calle de La Almudena"
+        },
+        "city": "Fuenlabrada",
+        "state": "Ceuta",
+        "country": "Spain",
+        "postcode": 39656,
+        "coordinates": {
+          "latitude": "-59.4377",
+          "longitude": "15.3188"
+        },
+        "timezone": {
+          "offset": "0:00",
+          "description": "Western Europe Time, London, Lisbon, Casablanca"
+        }
+      },
+      "email": "mar.iglesias@example.com",
+      "login": {
+        "uuid": "25b6b67f-1c4c-44b9-bf79-7465e08d2cd9",
+        "username": "whiteduck107",
+        "password": "1964",
+        "salt": "4dFYiV1I",
+        "md5": "57e60595beb6ca78e1070ee84452cc5c",
+        "sha1": "44939ad5a6f230a386cf513a81fadf31abe1a564",
+        "sha256": "41000645993e61a2a048f7e4af6f0e146dd501f819bd48386f9fdab34526494f"
+      },
+      "dob": {
+        "date": "1963-01-08T05:56:22.192Z",
+        "age": 63
+      },
+      "registered": {
+        "date": "2005-07-08T16:38:02.010Z",
+        "age": 21
+      },
+      "phone": "914-425-699",
+      "cell": "607-218-026",
+      "id": {
+        "name": "DNI",
+        "value": "86383288-A"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/91.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/91.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/91.jpg"
+      },
+      "nat": "ES"
+    },
+    {
+      "gender": "male",
+      "name": {
+        "title": "Mr",
+        "first": "Fridolin",
+        "last": "Ehlert"
+      },
+      "location": {
+        "street": {
+          "number": 8134,
+          "name": "Feldstraße"
+        },
+        "city": "Blankenburg (Harz)",
+        "state": "Hessen",
+        "country": "Germany",
+        "postcode": 15759,
+        "coordinates": {
+          "latitude": "-85.2435",
+          "longitude": "161.8995"
+        },
+        "timezone": {
+          "offset": "+9:00",
+          "description": "Tokyo, Seoul, Osaka, Sapporo, Yakutsk"
+        }
+      },
+      "email": "fridolin.ehlert@example.com",
+      "login": {
+        "uuid": "3052f266-48af-4f0c-82d1-3ac96e43ed03",
+        "username": "greenfish393",
+        "password": "456654",
+        "salt": "ryhZvPQN",
+        "md5": "bba6a45100e3b589760770a1ee5222d1",
+        "sha1": "d2a8736f1bff5722b6997650584d2da202f4d3ee",
+        "sha256": "05b2c982ccd55a86997ed21a3c107c446c5e79f8277371f3c48740bfdb1e9fb5"
+      },
+      "dob": {
+        "date": "1953-10-07T14:25:44.154Z",
+        "age": 73
+      },
+      "registered": {
+        "date": "2015-11-04T05:09:02.687Z",
+        "age": 10
+      },
+      "phone": "0954-3853904",
+      "cell": "0178-9834185",
+      "id": {
+        "name": "SVNR",
+        "value": "17 071053 E 284"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/men/94.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/men/94.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/men/94.jpg"
+      },
+      "nat": "DE"
+    },
+    {
+      "gender": "male",
+      "name": {
+        "title": "Mr",
+        "first": "Vernon",
+        "last": "Edwards"
+      },
+      "location": {
+        "street": {
+          "number": 6210,
+          "name": "Main Street"
+        },
+        "city": "Kildare",
+        "state": "Dún Laoghaire–Rathdown",
+        "country": "Ireland",
+        "postcode": 21973,
+        "coordinates": {
+          "latitude": "-80.1535",
+          "longitude": "-76.6791"
+        },
+        "timezone": {
+          "offset": "+3:00",
+          "description": "Baghdad, Riyadh, Moscow, St. Petersburg"
+        }
+      },
+      "email": "vernon.edwards@example.com",
+      "login": {
+        "uuid": "2ed41614-61d5-4aaa-8545-2aff875d95f0",
+        "username": "bigduck568",
+        "password": "milton",
+        "salt": "2nKQa0Qo",
+        "md5": "40c32f9b44a2261da5a043fad7d00cb5",
+        "sha1": "b9bd9837b6c623a7138b43aa6b1cccc0cf63e7ec",
+        "sha256": "d3dad2a5d9a09386c7a9d77796a34584a2113a695ac4bad2a0d930ed5a95fe86"
+      },
+      "dob": {
+        "date": "1953-05-15T03:50:00.176Z",
+        "age": 73
+      },
+      "registered": {
+        "date": "2017-09-26T02:30:36.962Z",
+        "age": 9
+      },
+      "phone": "061-815-6527",
+      "cell": "081-072-1932",
+      "id": {
+        "name": "PPS",
+        "value": "7740812T"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/men/71.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/men/71.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/men/71.jpg"
+      },
+      "nat": "IE"
+    },
+    {
+      "gender": "male",
+      "name": {
+        "title": "Mr",
+        "first": "Alan",
+        "last": "Mcdonalid"
+      },
+      "location": {
+        "street": {
+          "number": 6839,
+          "name": "Country Club Rd"
+        },
+        "city": "Garland",
+        "state": "Kentucky",
+        "country": "United States",
+        "postcode": 25288,
+        "coordinates": {
+          "latitude": "-7.7337",
+          "longitude": "110.9424"
+        },
+        "timezone": {
+          "offset": "-9:00",
+          "description": "Alaska"
+        }
+      },
+      "email": "alan.mcdonalid@example.com",
+      "login": {
+        "uuid": "fd671d82-9782-4f38-9673-2d39a0fb3913",
+        "username": "goldentiger545",
+        "password": "boston",
+        "salt": "Vrqz58v8",
+        "md5": "7003900c8b756a509ba4a17bf9a58873",
+        "sha1": "45b41aa028fd485080e219c303b87a66a838f7ec",
+        "sha256": "de995029e91d02fd0d95010e3cdedfb9493a9f4c161b0388754d29440d669275"
+      },
+      "dob": {
+        "date": "1973-02-02T06:44:45.380Z",
+        "age": 53
+      },
+      "registered": {
+        "date": "2019-07-08T17:30:05.628Z",
+        "age": 7
+      },
+      "phone": "(531) 856-5557",
+      "cell": "(950) 263-5300",
+      "id": {
+        "name": "SSN",
+        "value": "033-75-8974"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/men/35.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/men/35.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/men/35.jpg"
+      },
+      "nat": "US"
+    }
+  ],
+  "info": {
+    "seed": "team2",
+    "results": 5,
+    "page": 2,
+    "version": "1.4"
+  }
+}
