@@ -4,6 +4,7 @@ Stub only. clean_record and clean_records raise NotImplementedError.
 """
 
 from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
+from datetime import UTC, datetime
 
 
 class RecordRejected(Exception):
@@ -17,7 +18,17 @@ class RecordRejected(Exception):
 
 def clean_record(raw: RawRecord) -> Customer:
     """Turn one raw API record into a Customer. Raises RecordRejected(code, reason)."""
-    raise NotImplementedError
+    registered = datetime.fromisoformat(raw["registered"]["date"])
+    return Customer(
+        uuid=raw["login"]["uuid"],
+        first_name=raw["name"]["first"],
+        last_name=raw["name"]["last"],
+        email=raw["email"],
+        phone=raw["phone"],
+        city=raw["location"]["city"],
+        country=raw["location"]["country"],
+        registered_at=registered.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    )
 
 
 def clean_records(raws: list[RawRecord]) -> CleanResult:
