@@ -1,0 +1,290 @@
+{
+  "results": [
+    {
+      "gender": "female",
+      "name": {
+        "title": "Ms",
+        "first": "Beaudine",
+        "last": "Ottevanger"
+      },
+      "location": {
+        "street": {
+          "number": 8668,
+          "name": "Cherubinilaan"
+        },
+        "city": "Zwarsluis",
+        "state": "Noord-Brabant",
+        "country": "Netherlands",
+        "postcode": "9075 GJ",
+        "coordinates": {
+          "latitude": "37.7880",
+          "longitude": "37.9116"
+        },
+        "timezone": {
+          "offset": "-6:00",
+          "description": "Central Time (US & Canada), Mexico City"
+        }
+      },
+      "email": "beaudine.ottevanger@example.com",
+      "login": {
+        "uuid": "18d3d4f8-1b6c-480d-be6f-51de14bc1017",
+        "username": "yellowgoose201",
+        "password": "hack",
+        "salt": "UxWIaZE3",
+        "md5": "888359a19a9b3f62141d23a2edb42535",
+        "sha1": "6d8ed49618616b680e7a71a678a6aaa643af0049",
+        "sha256": "536ce4153ba1e59efb5c0f1748fa60409172525e83dd2477aee8ba589a82bccc"
+      },
+      "dob": {
+        "date": "1991-01-23T12:37:43.853Z",
+        "age": 35
+      },
+      "registered": {
+        "date": "2020-12-29T23:12:33.098Z",
+        "age": 5
+      },
+      "phone": "(026) 7000444",
+      "cell": "(06) 96787652",
+      "id": {
+        "name": "BSN",
+        "value": "22611313"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/8.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/8.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/8.jpg"
+      },
+      "nat": "NL"
+    },
+    {
+      "gender": "female",
+      "name": {
+        "title": "Miss",
+        "first": "Synne",
+        "last": "Hesselberg"
+      },
+      "location": {
+        "street": {
+          "number": 7154,
+          "name": "Dalsløkka"
+        },
+        "city": "Tranby",
+        "state": "Bergen",
+        "country": "Norway",
+        "postcode": "6717",
+        "coordinates": {
+          "latitude": "-15.7222",
+          "longitude": "-26.6711"
+        },
+        "timezone": {
+          "offset": "-7:00",
+          "description": "Mountain Time (US & Canada)"
+        }
+      },
+      "email": "synne.hesselberg@example.com",
+      "login": {
+        "uuid": "49a675d1-a7f9-4ccc-a943-4a22525f1c83",
+        "username": "tinyduck383",
+        "password": "promise",
+        "salt": "SALZpDPk",
+        "md5": "0ef008c17fd65f9e6b02f83c67e97cd4",
+        "sha1": "c868e474a23d6a18f4ae3a386ae34a8cf8e094d3",
+        "sha256": "910e346b65dabbb746b1c67961b86dc3057b2b45db749b6fc18e39f3f6ae1256"
+      },
+      "dob": {
+        "date": "1987-10-19T16:05:41.489Z",
+        "age": 39
+      },
+      "registered": {
+        "date": "2021-08-02T22:29:07.492Z",
+        "age": 5
+      },
+      "phone": "51693760",
+      "cell": "90844025",
+      "id": {
+        "name": "FN",
+        "value": "19108731047"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/79.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/79.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/79.jpg"
+      },
+      "nat": "NO"
+    },
+    {
+      "gender": "female",
+      "name": {
+        "title": "Ms",
+        "first": "Keya",
+        "last": "Kini"
+      },
+      "location": {
+        "street": {
+          "number": 4282,
+          "name": "Pali Hill"
+        },
+        "city": "Bikaner",
+        "state": "Puducherry",
+        "country": "India",
+        "postcode": 10899,
+        "coordinates": {
+          "latitude": "-21.6655",
+          "longitude": "86.2993"
+        },
+        "timezone": {
+          "offset": "-3:00",
+          "description": "Brazil, Buenos Aires, Georgetown"
+        }
+      },
+      "email": "keya.kini@example.com",
+      "login": {
+        "uuid": "de502b2d-19b6-49d3-ba2b-e35cfd52ae5c",
+        "username": "silverelephant748",
+        "password": "spread",
+        "salt": "V3sZCaW9",
+        "md5": "6b186bc3f8b3bd400a4802343f513574",
+        "sha1": "53f717479292993c59f4f34ca08ad9acea22f197",
+        "sha256": "a5dfe2d18d89bc0d6a6b45604f2c60fc7bdc73ef6a336b46893ca6edfe42e11d"
+      },
+      "dob": {
+        "date": "1971-06-15T22:27:29.947Z",
+        "age": 55
+      },
+      "registered": {
+        "date": "2002-03-30T18:30:30.870Z",
+        "age": 24
+      },
+      "phone": "7009475232",
+      "cell": "9180129543",
+      "id": {
+        "name": "UIDAI",
+        "value": "924114539166"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/46.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/46.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/46.jpg"
+      },
+      "nat": "IN"
+    },
+    {
+      "gender": "female",
+      "name": {
+        "title": "Ms",
+        "first": "Maide",
+        "last": "Van den Eijnden"
+      },
+      "location": {
+        "street": {
+          "number": 7697,
+          "name": "Jacoba van Beierenhof"
+        },
+        "city": "Maurik",
+        "state": "Zuid-Holland",
+        "country": "Netherlands",
+        "postcode": "3329 MF",
+        "coordinates": {
+          "latitude": "30.3319",
+          "longitude": "-174.6346"
+        },
+        "timezone": {
+          "offset": "-10:00",
+          "description": "Hawaii"
+        }
+      },
+      "email": "maide.vandeneijnden@example.com",
+      "login": {
+        "uuid": "c0d77138-6b8f-456f-96a3-c0ce4d70cfdc",
+        "username": "ticklishladybug525",
+        "password": "1125",
+        "salt": "zk6mwp5p",
+        "md5": "9566f6842becc31b897df3d2ee66b58c",
+        "sha1": "a9ec74c7929d5a0d860d5419b4011f17ab1eae74",
+        "sha256": "3a8ce1b475853c5632a486c221b4ff9e93dc15d8603aaa1b48420434f56ad13d"
+      },
+      "dob": {
+        "date": "1952-04-11T14:22:49.441Z",
+        "age": 74
+      },
+      "registered": {
+        "date": "2018-06-22T03:09:41.688Z",
+        "age": 8
+      },
+      "phone": "(049) 5258401",
+      "cell": "(06) 90913103",
+      "id": {
+        "name": "BSN",
+        "value": "11967681"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/94.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/94.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/94.jpg"
+      },
+      "nat": "NL"
+    },
+    {
+      "gender": "female",
+      "name": {
+        "title": "Ms",
+        "first": "Liliana",
+        "last": "Holmgren"
+      },
+      "location": {
+        "street": {
+          "number": 103,
+          "name": "Røatoppen"
+        },
+        "city": "Ersfjordbotn",
+        "state": "Description",
+        "country": "Norway",
+        "postcode": "0601",
+        "coordinates": {
+          "latitude": "-46.3868",
+          "longitude": "79.4855"
+        },
+        "timezone": {
+          "offset": "+5:45",
+          "description": "Kathmandu"
+        }
+      },
+      "email": "liliana.holmgren@example.com",
+      "login": {
+        "uuid": "707000f7-b834-43e3-9123-f975f4711785",
+        "username": "brownfrog755",
+        "password": "odyssey",
+        "salt": "4ZNlGi1O",
+        "md5": "3dedf36a04b81052febcc99b86c95ce8",
+        "sha1": "032dce68ed40452f0221e4363e23b4160c33afc6",
+        "sha256": "ced49fbe77d6990970316c8135e08e372b2cf8b89e39a003cbcd1190376ed033"
+      },
+      "dob": {
+        "date": "1954-05-03T23:10:09.291Z",
+        "age": 72
+      },
+      "registered": {
+        "date": "2017-06-15T14:41:30.920Z",
+        "age": 9
+      },
+      "phone": "71183227",
+      "cell": "43300833",
+      "id": {
+        "name": "FN",
+        "value": "03055411696"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/6.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/6.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/6.jpg"
+      },
+      "nat": "NO"
+    }
+  ],
+  "info": {
+    "seed": "team2",
+    "results": 5,
+    "page": 1,
+    "version": "1.4"
+  }
+}
