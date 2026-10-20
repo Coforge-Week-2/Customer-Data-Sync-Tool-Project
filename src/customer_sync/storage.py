@@ -63,16 +63,16 @@ class CustomerStore:
 
     def __init__(self, db_path: str | Path) -> None:
         self.db_path = db_path
+        conn: sqlite3.Connection | None = None
         try:
-            self._conn = sqlite3.connect(db_path)
+            conn = sqlite3.connect(db_path)
+            with conn:
+                conn.execute(_SCHEMA)
         except sqlite3.Error as exc:
+            if conn is not None:
+                conn.close()
             raise StorageError(f"could not open database {db_path}: {exc}") from exc
-        try:
-            with self._conn:
-                self._conn.execute(_SCHEMA)
-        except sqlite3.Error as exc:
-            self._conn.close()
-            raise StorageError(f"could not open database {db_path}: {exc}") from exc
+        self._conn = conn
 
     def __enter__(self) -> CustomerStore:
         return self
