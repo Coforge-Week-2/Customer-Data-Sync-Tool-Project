@@ -184,6 +184,9 @@ def test_registered_date_wrong_type_is_rejected(raw: RawRecord) -> None:
         "2020-13-45T99:00:00Z",
         "2020-12-29T23:12:33",
         "2020-12-29",
+        "2020-12-29",
+        "0001-01-01T00:00:00+05:00",
+        "9999-12-31T23:59:59-05:00",
     ],
 )
 def test_registered_date_invalid_is_rejected(raw: RawRecord, bad_date: str) -> None:
