@@ -59,6 +59,7 @@ def test_email_is_trimmed_and_lowercased(raw: RawRecord) -> None:
     raw["email"] = "  Foo@BAR.com "
     assert clean_record(raw).email == "foo@bar.com"
 
+
 @pytest.mark.parametrize("field", ["first", "last"])
 def test_name_missing_is_rejected(raw: RawRecord, field: str) -> None:
     del raw["name"][field]
