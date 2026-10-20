@@ -71,18 +71,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--quiet-rejections", action="store_true")
     args = parser.parse_args(argv)
 
-    if args.from_file is not None:
-        source: RecordSource = FileSource(args.from_file)
-        source_label = f"file {args.from_file}"
-    else:
-        source = RandomUserClient(
-            seed=args.seed,
-            results=args.results,
-            pages=args.pages,
-        )
-        source_label = f"api seed={args.seed}"
-
     try:
+        if args.from_file is not None:
+            source: RecordSource = FileSource(args.from_file)
+            source_label = f"file {args.from_file}"
+        else:
+            source = RandomUserClient(
+                seed=args.seed,
+                results=args.results,
+                pages=args.pages,
+            )
+            source_label = f"api seed={args.seed}"
         with CustomerStore(args.db) as store:
             summary = run_sync(source, store)
     except SyncError as exc:

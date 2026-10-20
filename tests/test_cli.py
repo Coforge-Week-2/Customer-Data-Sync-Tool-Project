@@ -189,6 +189,24 @@ def test_main_returns_1_when_source_raises_api_error(
     assert "Sync complete" not in captured.out
 
 
+def test_main_returns_1_when_client_constructor_raises_sync_error(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    class BoomClient:
+        def __init__(self, seed: str, results: int, pages: int) -> None:
+            raise ApiError("client setup failed")
+
+    monkeypatch.setattr("customer_sync.cli.RandomUserClient", BoomClient)
+
+    code = main([])
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert captured.err == "client setup failed\n"
+    assert "Sync complete" not in captured.out
+
+
 def test_main_picks_file_source_or_api_client(monkeypatch: pytest.MonkeyPatch) -> None:
     seen = _patch_main(monkeypatch, _clean_result())
 
