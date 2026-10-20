@@ -1,9 +1,9 @@
 """Tests for cleaning and validation. Owner: Julian."""
 
 import copy
-
 import pytest
-
+import json
+from pathlib import Path
 from customer_sync.cleaning import RecordRejected, clean_record
 from customer_sync.contracts import Customer, RawRecord, RejectCode
 
@@ -288,3 +288,47 @@ def test_required_fields_are_checked_before_optional_fields(raw: RawRecord) -> N
         clean_record(raw)
     assert exc.value.code == RejectCode.MISSING_FIELD
     assert "email" in exc.value.reason
+
+    EXPECTED_REJECTIONS = {
+    10: RejectCode.MISSING_FIELD,
+    11: RejectCode.WRONG_TYPE,
+    12: RejectCode.INVALID_VALUE,
+    13: RejectCode.INVALID_VALUE,
+    14: RejectCode.MISSING_FIELD,
+    15: RejectCode.INVALID_VALUE,
+}
+
+
+@pytest.fixture
+def messy(fixtures_dir: Path) -> list[RawRecord]:
+    path = fixtures_dir / "cleaning" / "messy_response.json"
+    results: list[RawRecord] = json.loads(path.read_text(encoding="utf-8"))["results"]
+    return results
+
+
+def test_messy_fixture_has_expected_size(messy: list[RawRecord]) -> None:
+    assert len(messy) == 21
+
+
+@pytest.mark.parametrize(("index", "code"), sorted(EXPECTED_REJECTIONS.items()))
+def test_messy_fixture_rejections(
+    messy: list[RawRecord], index: int, code: RejectCode
+) -> None:
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(messy[index])
+    assert exc.value.code == code
+    assert exc.value.reason
+
+
+def test_messy_fixture_accepted_records(messy: list[RawRecord]) -> None:
+    accepted = [i for i in range(len(messy)) if i not in EXPECTED_REJECTIONS]
+    assert accepted == [*range(10), 16, 17, 18, 19, 20]
+    for index in accepted:
+        clean_record(messy[index])  # must not raise
+    # 16 and 17 are duplicates only in a batch; a single record looks fine.
+
+
+def test_messy_fixture_normalised_values(messy: list[RawRecord]) -> None:
+    assert clean_record(messy[18]).email == "foo@bar.com"
+    assert clean_record(messy[19]).phone is None
+    assert clean_record(messy[20]).phone == "5551234567"
