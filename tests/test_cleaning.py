@@ -58,3 +58,45 @@ def test_email_malformed_is_rejected(raw: RawRecord, bad_email: str) -> None:
 def test_email_is_trimmed_and_lowercased(raw: RawRecord) -> None:
     raw["email"] = "  Foo@BAR.com "
     assert clean_record(raw).email == "foo@bar.com"
+
+@pytest.mark.parametrize("field", ["first", "last"])
+def test_name_missing_is_rejected(raw: RawRecord, field: str) -> None:
+    del raw["name"][field]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+    assert f"{field}_name" in exc.value.reason
+
+
+def test_name_object_missing_is_rejected(raw: RawRecord) -> None:
+    del raw["name"]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+
+
+@pytest.mark.parametrize("field", ["first", "last"])
+def test_name_wrong_type_is_rejected(raw: RawRecord, field: str) -> None:
+    raw["name"][field] = 42
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.WRONG_TYPE
+    assert f"{field}_name" in exc.value.reason
+
+
+@pytest.mark.parametrize("field", ["first", "last"])
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_name_blank_is_rejected(raw: RawRecord, field: str, blank: str) -> None:
+    raw["name"][field] = blank
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.INVALID_VALUE
+    assert f"{field}_name" in exc.value.reason
+
+
+def test_name_is_trimmed(raw: RawRecord) -> None:
+    raw["name"]["first"] = "  Beaudine "
+    raw["name"]["last"] = " Ottevanger  "
+    customer = clean_record(raw)
+    assert customer.first_name == "Beaudine"
+    assert customer.last_name == "Ottevanger"
