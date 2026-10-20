@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from types import TracebackType
 
-from customer_sync.contracts import Customer, UpsertCounts
+from customer_sync.contracts import Customer, StorageError, UpsertCounts
 
 # Customer fields in contract order; rows are read back in this order.
 _FIELDS = (
@@ -63,9 +63,16 @@ class CustomerStore:
 
     def __init__(self, db_path: str | Path) -> None:
         self.db_path = db_path
-        self._conn = sqlite3.connect(db_path)
-        with self._conn:
-            self._conn.execute(_SCHEMA)
+        conn: sqlite3.Connection | None = None
+        try:
+            conn = sqlite3.connect(db_path)
+            with conn:
+                conn.execute(_SCHEMA)
+        except sqlite3.Error as exc:
+            if conn is not None:
+                conn.close()
+            raise StorageError(f"could not open database {db_path}: {exc}") from exc
+        self._conn = conn
 
     def __enter__(self) -> CustomerStore:
         return self
@@ -82,17 +89,21 @@ class CustomerStore:
         """Insert new rows and update changed ones. Raises StorageError."""
         now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         added = updated = unchanged = 0
-        with self._conn:
-            for customer in customers:
-                existing = self.get(customer.uuid)
-                if existing is None:
-                    self._conn.execute(_INSERT, (*_values(customer), now, now))
-                    added += 1
-                elif existing != customer:
-                    self._conn.execute(_UPDATE, (*_values(customer)[1:], now, customer.uuid))
-                    updated += 1
-                else:
-                    unchanged += 1
+        try:
+            # The connection context manager commits on success and rolls back on error.
+            with self._conn:
+                for customer in customers:
+                    existing = self.get(customer.uuid)
+                    if existing is None:
+                        self._conn.execute(_INSERT, (*_values(customer), now, now))
+                        added += 1
+                    elif existing != customer:
+                        self._conn.execute(_UPDATE, (*_values(customer)[1:], now, customer.uuid))
+                        updated += 1
+                    else:
+                        unchanged += 1
+        except sqlite3.Error as exc:
+            raise StorageError(f"could not save customers, nothing was written: {exc}") from exc
         return UpsertCounts(added=added, updated=updated, unchanged=unchanged)
 
     def get(self, uuid: str) -> Customer | None:
