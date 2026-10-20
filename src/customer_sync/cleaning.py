@@ -4,6 +4,7 @@ Stub only. clean_record and clean_records raise NotImplementedError.
 """
 
 import re
+import uuid
 from datetime import UTC, datetime
 
 from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
@@ -45,8 +46,19 @@ def _required_str(raw: RawRecord, *path: str, label: str) -> str:
     return value
 
 
+def _is_canonical_uuid(text: str) -> bool:
+    """True only for lowercase hyphenated UUIDs, e.g. 18d3d4f8-1b6c-480d-be6f-51de14bc1017."""
+    try:
+        return str(uuid.UUID(text)) == text
+    except ValueError:
+        return False
+
+
 def clean_record(raw: RawRecord) -> Customer:
     """Turn one raw API record into a Customer. Raises RecordRejected(code, reason)."""
+    uuid_text = _required_str(raw, "login", "uuid", label="uuid").lower()
+    if not _is_canonical_uuid(uuid_text):
+        raise RecordRejected(RejectCode.INVALID_VALUE, f"invalid uuid: {uuid_text!r}")
     registered = datetime.fromisoformat(raw["registered"]["date"])
     first_name = _required_str(raw, "name", "first", label="first_name")
     last_name = _required_str(raw, "name", "last", label="last_name")
@@ -55,7 +67,7 @@ def clean_record(raw: RawRecord) -> Customer:
         raise RecordRejected(RejectCode.INVALID_VALUE, f"invalid email: {email!r}")
 
     return Customer(
-        uuid=raw["login"]["uuid"],
+        uuid=uuid_text,
         first_name=first_name,
         last_name=last_name,
         email=email,

@@ -102,6 +102,7 @@ def test_name_is_trimmed(raw: RawRecord) -> None:
     assert customer.first_name == "Beaudine"
     assert customer.last_name == "Ottevanger"
 
+
 def test_uuid_missing_is_rejected(raw: RawRecord) -> None:
     del raw["login"]["uuid"]
     with pytest.raises(RecordRejected) as exc:
