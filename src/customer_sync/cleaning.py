@@ -3,8 +3,12 @@
 Stub only. clean_record and clean_records raise NotImplementedError.
 """
 
-from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
+import re
 from datetime import UTC, datetime
+
+from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class RecordRejected(Exception):
@@ -20,12 +24,17 @@ def clean_record(raw: RawRecord) -> Customer:
     """Turn one raw API record into a Customer. Raises RecordRejected(code, reason)."""
     registered = datetime.fromisoformat(raw["registered"]["date"])
 
-    email = raw["email"]
+    email = raw.get("email")
+    if email is None:
+        raise RecordRejected(RejectCode.MISSING_FIELD, "missing field: email")
     if not isinstance(email, str):
         raise RecordRejected(
             RejectCode.WRONG_TYPE, f"email must be str, got {type(email).__name__}"
         )
-    
+    email = email.strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise RecordRejected(RejectCode.INVALID_VALUE, f"invalid email: {email!r}")
+
     return Customer(
         uuid=raw["login"]["uuid"],
         first_name=raw["name"]["first"],
