@@ -1,9 +1,11 @@
 """Tests for cleaning and validation. Owner: Julian."""
 
 import copy
-import pytest
 import json
 from pathlib import Path
+
+import pytest
+
 from customer_sync.cleaning import RecordRejected, clean_record
 from customer_sync.contracts import Customer, RawRecord, RejectCode
 
@@ -272,6 +274,7 @@ def test_location_field_wrong_type_is_rejected(raw: RawRecord, field: str) -> No
     assert exc.value.code == RejectCode.WRONG_TYPE
     assert field in exc.value.reason
 
+
 def test_first_failure_wins_follows_field_order(raw: RawRecord) -> None:
     raw["login"]["uuid"] = "not-a-uuid"  # problem 1, checked first
     del raw["email"]  # problem 2, checked later
@@ -289,7 +292,8 @@ def test_required_fields_are_checked_before_optional_fields(raw: RawRecord) -> N
     assert exc.value.code == RejectCode.MISSING_FIELD
     assert "email" in exc.value.reason
 
-    EXPECTED_REJECTIONS = {
+
+EXPECTED_REJECTIONS = {
     10: RejectCode.MISSING_FIELD,
     11: RejectCode.WRONG_TYPE,
     12: RejectCode.INVALID_VALUE,
@@ -311,9 +315,7 @@ def test_messy_fixture_has_expected_size(messy: list[RawRecord]) -> None:
 
 
 @pytest.mark.parametrize(("index", "code"), sorted(EXPECTED_REJECTIONS.items()))
-def test_messy_fixture_rejections(
-    messy: list[RawRecord], index: int, code: RejectCode
-) -> None:
+def test_messy_fixture_rejections(messy: list[RawRecord], index: int, code: RejectCode) -> None:
     with pytest.raises(RecordRejected) as exc:
         clean_record(messy[index])
     assert exc.value.code == code
