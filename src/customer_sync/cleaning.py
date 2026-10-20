@@ -1,6 +1,6 @@
 """Turn raw API records into customers. Owner: Julian.
 
-Stub only. clean_record and clean_records raise NotImplementedError.
+clean_record is implemented. clean_records (batch and duplicates) is still a stub.
 """
 
 import re
