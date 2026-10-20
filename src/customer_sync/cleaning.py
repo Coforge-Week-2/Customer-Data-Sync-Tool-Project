@@ -78,7 +78,13 @@ def _to_utc_text(text: str, label: str) -> str:
         ) from None
     if parsed.tzinfo is None:
         raise RecordRejected(RejectCode.INVALID_VALUE, f"{label} has no timezone: {text!r}")
-    return parsed.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        utc = parsed.astimezone(UTC)
+    except OverflowError:
+        raise RecordRejected(
+            RejectCode.INVALID_VALUE, f"{label} is out of range: {text!r}"
+        ) from None
+    return utc.replace(microsecond=0, tzinfo=None).isoformat() + "Z"
 
 
 def clean_record(raw: RawRecord) -> Customer:
