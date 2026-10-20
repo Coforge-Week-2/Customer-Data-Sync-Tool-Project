@@ -101,3 +101,49 @@ def test_name_is_trimmed(raw: RawRecord) -> None:
     customer = clean_record(raw)
     assert customer.first_name == "Beaudine"
     assert customer.last_name == "Ottevanger"
+
+def test_uuid_missing_is_rejected(raw: RawRecord) -> None:
+    del raw["login"]["uuid"]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+    assert "uuid" in exc.value.reason
+
+
+def test_login_object_missing_is_rejected(raw: RawRecord) -> None:
+    del raw["login"]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+
+
+def test_uuid_wrong_type_is_rejected(raw: RawRecord) -> None:
+    raw["login"]["uuid"] = 42
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.WRONG_TYPE
+    assert "uuid" in exc.value.reason
+
+
+@pytest.mark.parametrize(
+    "bad_uuid",
+    [
+        "not-a-uuid",
+        "",
+        "   ",
+        "18d3d4f8-1b6c-480d-be6f-51de14bc101",
+        "{18d3d4f8-1b6c-480d-be6f-51de14bc1017}",
+        "18d3d4f81b6c480dbe6f51de14bc1017",
+    ],
+)
+def test_uuid_malformed_is_rejected(raw: RawRecord, bad_uuid: str) -> None:
+    raw["login"]["uuid"] = bad_uuid
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.INVALID_VALUE
+    assert "uuid" in exc.value.reason
+
+
+def test_uuid_is_trimmed_and_lowercased(raw: RawRecord) -> None:
+    raw["login"]["uuid"] = "  18D3D4F8-1B6C-480D-BE6F-51DE14BC1017 "
+    assert clean_record(raw).uuid == "18d3d4f8-1b6c-480d-be6f-51de14bc1017"
