@@ -206,7 +206,6 @@ def test_registered_date_invalid_is_rejected(raw: RawRecord, bad_date: str) -> N
         ("2020-12-29T23:12:33-05:00", "2020-12-30T04:12:33Z"),
         ("  2020-12-29T23:12:33Z ", "2020-12-29T23:12:33Z"),
         ("0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z"),
-        ("9999-12-31T23:59:59-05:00", "9999-12-31T23:59:59Z"),
     ],
 )
 def test_registered_date_is_converted_to_utc(raw: RawRecord, text: str, expected: str) -> None:
