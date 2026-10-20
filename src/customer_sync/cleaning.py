@@ -54,17 +54,34 @@ def _is_canonical_uuid(text: str) -> bool:
         return False
 
 
+def _to_utc_text(text: str, label: str) -> str:
+    """Parse an ISO 8601 timestamp with a timezone. Return UTC as YYYY-MM-DDTHH:MM:SSZ."""
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        raise RecordRejected(
+            RejectCode.INVALID_VALUE, f"{label} is not an ISO 8601 timestamp: {text!r}"
+        ) from None
+    if parsed.tzinfo is None:
+        raise RecordRejected(RejectCode.INVALID_VALUE, f"{label} has no timezone: {text!r}")
+    return parsed.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def clean_record(raw: RawRecord) -> Customer:
     """Turn one raw API record into a Customer. Raises RecordRejected(code, reason)."""
+
     uuid_text = _required_str(raw, "login", "uuid", label="uuid").lower()
     if not _is_canonical_uuid(uuid_text):
         raise RecordRejected(RejectCode.INVALID_VALUE, f"invalid uuid: {uuid_text!r}")
-    registered = datetime.fromisoformat(raw["registered"]["date"])
+
     first_name = _required_str(raw, "name", "first", label="first_name")
     last_name = _required_str(raw, "name", "last", label="last_name")
     email = _required_str(raw, "email", label="email").lower()
+
     if not _EMAIL_RE.match(email):
         raise RecordRejected(RejectCode.INVALID_VALUE, f"invalid email: {email!r}")
+    registered_text = _required_str(raw, "registered", "date", label="registered_at")
+    registered_at = _to_utc_text(registered_text, "registered_at")
 
     return Customer(
         uuid=uuid_text,
@@ -74,7 +91,7 @@ def clean_record(raw: RawRecord) -> Customer:
         phone=raw["phone"],
         city=raw["location"]["city"],
         country=raw["location"]["country"],
-        registered_at=registered.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        registered_at=registered_at,
     )
 
 

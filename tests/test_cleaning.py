@@ -202,8 +202,6 @@ def test_registered_date_invalid_is_rejected(raw: RawRecord, bad_date: str) -> N
         ("  2020-12-29T23:12:33Z ", "2020-12-29T23:12:33Z"),
     ],
 )
-def test_registered_date_is_converted_to_utc(
-    raw: RawRecord, text: str, expected: str
-) -> None:
+def test_registered_date_is_converted_to_utc(raw: RawRecord, text: str, expected: str) -> None:
     raw["registered"]["date"] = text
     assert clean_record(raw).registered_at == expected
