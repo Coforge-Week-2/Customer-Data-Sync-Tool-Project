@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from customer_sync.contracts import Customer, UpsertCounts
+from customer_sync.contracts import Customer, StorageError, UpsertCounts
 from customer_sync.storage import CustomerStore
 
 NOW = "2026-10-19T12:00:00Z"
@@ -201,3 +201,50 @@ def test_upsert_mixed_batch(db_path: Path) -> None:
 def test_upsert_empty_batch(db_path: Path) -> None:
     with CustomerStore(db_path) as store:
         assert store.upsert_many([]) == UpsertCounts(added=0, updated=0, unchanged=0)
+
+
+def test_upsert_is_idempotent(db_path: Path) -> None:
+    customers = [make_customer(f"u{i:02}", email=f"u{i}@example.com") for i in range(10)]
+    with CustomerStore(db_path) as store:
+        results = [store.upsert_many(customers) for _ in range(3)]
+        assert results[0] == UpsertCounts(added=10, updated=0, unchanged=0)
+        assert results[-1] == UpsertCounts(added=0, updated=0, unchanged=10)
+        assert store.count() == 10
+
+
+def test_failure_mid_batch_rolls_back_everything(db_path: Path) -> None:
+    first = make_customer("first", email="first@example.com")
+    second = make_customer("second", email="second@example.com")
+    batch = [
+        replace(first, phone="000"),
+        make_customer("new-1", email="new1@example.com"),
+        make_customer("new-2", email="new2@example.com"),
+        make_customer("bad", email=None),
+        make_customer("new-3", email="new3@example.com"),
+    ]
+    with CustomerStore(db_path) as store:
+        store.upsert_many([first, second])
+
+        with pytest.raises(StorageError, match="nothing was written"):
+            store.upsert_many(batch)
+
+        assert store.all() == [first, second]
+        # The store is still usable after a failed batch.
+        assert store.upsert_many([first, second]) == UpsertCounts(0, 0, 2)
+
+
+def test_open_directory_raises_storage_error(tmp_path: Path) -> None:
+    with pytest.raises(StorageError, match="could not open database"):
+        CustomerStore(tmp_path)
+
+
+def test_open_missing_folder_raises_storage_error(tmp_path: Path) -> None:
+    with pytest.raises(StorageError, match="could not open database"):
+        CustomerStore(tmp_path / "missing" / "test.db")
+
+
+def test_open_non_database_file_raises_storage_error(tmp_path: Path) -> None:
+    not_a_db = tmp_path / "notes.db"
+    not_a_db.write_text("this is not a sqlite database " * 10, encoding="utf-8")
+    with pytest.raises(StorageError, match="could not open database"):
+        CustomerStore(not_a_db)
