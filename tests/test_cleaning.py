@@ -253,9 +253,7 @@ def test_location_object_missing_gives_none_city_and_country(raw: RawRecord) -> 
 
 @pytest.mark.parametrize("field", ["city", "country"])
 @pytest.mark.parametrize("empty", [None, "", "   "])
-def test_location_field_empty_becomes_none(
-    raw: RawRecord, field: str, empty: str | None
-) -> None:
+def test_location_field_empty_becomes_none(raw: RawRecord, field: str, empty: str | None) -> None:
     raw["location"][field] = empty
     assert getattr(clean_record(raw), field) is None
 
