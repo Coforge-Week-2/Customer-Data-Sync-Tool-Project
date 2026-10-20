@@ -1,13 +1,13 @@
 """Turn raw API records into customers. Owner: Julian.
 
-clean_record is implemented. clean_records (batch and duplicates) is still a stub.
+clean_record cleans one record. clean_records cleans a batch and rejects duplicates.
 """
 
 import re
 import uuid
 from datetime import UTC, datetime
 
-from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
+from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode, Rejection
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
