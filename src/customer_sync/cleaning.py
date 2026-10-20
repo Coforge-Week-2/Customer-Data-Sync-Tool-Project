@@ -114,6 +114,12 @@ def clean_record(raw: RawRecord) -> Customer:
         registered_at=registered_at,
     )
 
+def _readable_uuid(raw: RawRecord) -> str | None:
+    """Best-effort uuid for a rejection report. None if absent, not text, or blank."""
+    value = _get(raw, "login", "uuid")
+    if not isinstance(value, str):
+        return None
+    return value.strip().lower() or None
 
 def clean_records(raws: list[RawRecord]) -> CleanResult:
     """Clean a batch. Duplicate uuid or email in the batch is rejected."""
