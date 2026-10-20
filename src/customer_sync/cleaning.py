@@ -19,11 +19,18 @@ class RecordRejected(Exception):
 def clean_record(raw: RawRecord) -> Customer:
     """Turn one raw API record into a Customer. Raises RecordRejected(code, reason)."""
     registered = datetime.fromisoformat(raw["registered"]["date"])
+
+    email = raw["email"]
+    if not isinstance(email, str):
+        raise RecordRejected(
+            RejectCode.WRONG_TYPE, f"email must be str, got {type(email).__name__}"
+        )
+    
     return Customer(
         uuid=raw["login"]["uuid"],
         first_name=raw["name"]["first"],
         last_name=raw["name"]["last"],
-        email=raw["email"],
+        email=email,
         phone=raw["phone"],
         city=raw["location"]["city"],
         country=raw["location"]["country"],
