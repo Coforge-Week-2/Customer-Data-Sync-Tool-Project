@@ -205,3 +205,71 @@ def test_registered_date_invalid_is_rejected(raw: RawRecord, bad_date: str) -> N
 def test_registered_date_is_converted_to_utc(raw: RawRecord, text: str, expected: str) -> None:
     raw["registered"]["date"] = text
     assert clean_record(raw).registered_at == expected
+
+
+def test_phone_absent_becomes_none(raw: RawRecord) -> None:
+    del raw["phone"]
+    assert "cell" in raw  # cell must not be used as a fallback
+    assert clean_record(raw).phone is None
+
+
+@pytest.mark.parametrize("empty", [None, "", "   "])
+def test_phone_empty_becomes_none(raw: RawRecord, empty: str | None) -> None:
+    raw["phone"] = empty
+    assert clean_record(raw).phone is None
+
+
+def test_phone_is_trimmed(raw: RawRecord) -> None:
+    raw["phone"] = "  (026) 7000444 "
+    assert clean_record(raw).phone == "(026) 7000444"
+
+
+def test_phone_int_becomes_text(raw: RawRecord) -> None:
+    raw["phone"] = 5551234567
+    assert clean_record(raw).phone == "5551234567"
+
+
+@pytest.mark.parametrize("bad_phone", [True, False, 12.5, ["0113"]])
+def test_phone_wrong_type_is_rejected(raw: RawRecord, bad_phone: object) -> None:
+    raw["phone"] = bad_phone
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.WRONG_TYPE
+    assert "phone" in exc.value.reason
+
+
+@pytest.mark.parametrize("field", ["city", "country"])
+def test_location_field_absent_becomes_none(raw: RawRecord, field: str) -> None:
+    del raw["location"][field]
+    assert getattr(clean_record(raw), field) is None
+
+
+def test_location_object_missing_gives_none_city_and_country(raw: RawRecord) -> None:
+    del raw["location"]
+    customer = clean_record(raw)
+    assert customer.city is None
+    assert customer.country is None
+
+
+@pytest.mark.parametrize("field", ["city", "country"])
+@pytest.mark.parametrize("empty", [None, "", "   "])
+def test_location_field_empty_becomes_none(
+    raw: RawRecord, field: str, empty: str | None
+) -> None:
+    raw["location"][field] = empty
+    assert getattr(clean_record(raw), field) is None
+
+
+@pytest.mark.parametrize("field", ["city", "country"])
+def test_location_field_is_trimmed(raw: RawRecord, field: str) -> None:
+    raw["location"][field] = "  Leeds "
+    assert getattr(clean_record(raw), field) == "Leeds"
+
+
+@pytest.mark.parametrize("field", ["city", "country"])
+def test_location_field_wrong_type_is_rejected(raw: RawRecord, field: str) -> None:
+    raw["location"][field] = 42
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.WRONG_TYPE
+    assert field in exc.value.reason
