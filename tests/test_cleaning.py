@@ -271,3 +271,20 @@ def test_location_field_wrong_type_is_rejected(raw: RawRecord, field: str) -> No
         clean_record(raw)
     assert exc.value.code == RejectCode.WRONG_TYPE
     assert field in exc.value.reason
+
+def test_first_failure_wins_follows_field_order(raw: RawRecord) -> None:
+    raw["login"]["uuid"] = "not-a-uuid"  # problem 1, checked first
+    del raw["email"]  # problem 2, checked later
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.INVALID_VALUE
+    assert "uuid" in exc.value.reason
+
+
+def test_required_fields_are_checked_before_optional_fields(raw: RawRecord) -> None:
+    del raw["email"]  # required field problem
+    raw["phone"] = True  # optional field problem
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+    assert "email" in exc.value.reason
