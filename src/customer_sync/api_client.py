@@ -3,6 +3,7 @@
 Stub only. Implementations raise NotImplementedError until the API tickets land.
 """
 
+import json
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -10,7 +11,7 @@ from typing import Any
 
 import requests
 
-from customer_sync.contracts import ApiError, RawRecord
+from customer_sync.contracts import ApiError, RawRecord, SourceFileError
 
 
 class RandomUserClient:
@@ -97,4 +98,13 @@ class FileSource:
 
     def fetch_records(self) -> list[RawRecord]:
         """Return the results list from a saved API response. Raises SourceFileError."""
-        raise NotImplementedError
+        try:
+            payload = json.loads(Path(self.path).read_text(encoding="utf-8"))
+        except OSError as exc:
+            raise SourceFileError(f"cannot read {self.path}: {exc}") from exc
+        except ValueError as exc:  # bad JSON or bad UTF-8
+            raise SourceFileError(f"{self.path} is not valid JSON: {exc}") from exc
+        results = payload.get("results") if isinstance(payload, dict) else None
+        if not isinstance(results, list):
+            raise SourceFileError(f"{self.path} has no 'results' list")
+        return results
