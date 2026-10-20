@@ -7,10 +7,11 @@ from typing import Any
 import pytest
 import requests
 
-from customer_sync.api_client import RandomUserClient
-from customer_sync.contracts import ApiError
+from customer_sync.api_client import FileSource, RandomUserClient
+from customer_sync.contracts import ApiError, SourceFileError
 
 API_FIXTURES = Path(__file__).parent / "fixtures" / "api"
+RAW_FIXTURE = Path(__file__).parent / "fixtures" / "raw" / "seed_team2_r10_p1.json"
 
 
 def load(name: str) -> dict[str, Any]:
@@ -194,3 +195,50 @@ def test_backoff_doubles_each_attempt() -> None:
         make_client(session, delays, max_retries=5, backoff=0.25).fetch_page(1)
 
     assert delays == [0.25, 0.5, 1.0, 2.0]
+
+
+def test_file_source_returns_results_from_saved_response() -> None:
+    records = FileSource(RAW_FIXTURE).fetch_records()
+
+    assert records == json.loads(RAW_FIXTURE.read_text(encoding="utf-8"))["results"]
+    assert len(records) == 10
+
+
+def test_file_source_accepts_str_path(tmp_path: Path) -> None:
+    saved = tmp_path / "saved.json"
+    saved.write_text(json.dumps({"results": [{"a": 1}]}), encoding="utf-8")
+
+    assert FileSource(str(saved)).fetch_records() == [{"a": 1}]
+
+
+def test_file_source_missing_file_names_the_path(tmp_path: Path) -> None:
+    missing = tmp_path / "nope.json"
+
+    with pytest.raises(SourceFileError, match="nope.json"):
+        FileSource(missing).fetch_records()
+
+
+@pytest.mark.parametrize(
+    ("content", "match"),
+    [
+        ("{not json", "not valid JSON"),
+        ("", "not valid JSON"),
+        ('{"info": {}}', "results"),
+        ('{"results": "nope"}', "results"),
+        ('["not", "a", "dict"]', "results"),
+    ],
+)
+def test_file_source_bad_content_raises(tmp_path: Path, content: str, match: str) -> None:
+    bad = tmp_path / "bad.json"
+    bad.write_text(content, encoding="utf-8")
+
+    with pytest.raises(SourceFileError, match=match):
+        FileSource(bad).fetch_records()
+
+
+def test_file_source_non_utf8_file_raises(tmp_path: Path) -> None:
+    bad = tmp_path / "latin1.json"
+    bad.write_bytes(b'{"results": ["\xe9"]}')
+
+    with pytest.raises(SourceFileError, match="bad.json|latin1.json"):
+        FileSource(bad).fetch_records()
