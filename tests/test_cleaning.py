@@ -31,3 +31,27 @@ def test_email_wrong_type_is_rejected(raw: RawRecord) -> None:
         clean_record(raw)
     assert exc.value.code == RejectCode.WRONG_TYPE
     assert "email" in exc.value.reason
+
+def test_email_missing_is_rejected(raw: RawRecord) -> None:
+    del raw["email"]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+    assert "email" in exc.value.reason
+
+@pytest.mark.parametrize(
+    "bad_email",
+    ["no-at-sign.com", "a@b", "a @b.com", "a@@b.com", "", "   "],
+)
+def test_email_malformed_is_rejected(raw: RawRecord, bad_email: str) -> None:
+    raw["email"] = bad_email
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.INVALID_VALUE
+    assert "email" in exc.value.reason
+
+
+def test_email_is_trimmed_and_lowercased(raw: RawRecord) -> None:
+    raw["email"] = "  Foo@BAR.com "
+    assert clean_record(raw).email == "foo@bar.com"
+
