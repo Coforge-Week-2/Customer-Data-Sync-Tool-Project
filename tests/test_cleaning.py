@@ -148,3 +148,62 @@ def test_uuid_malformed_is_rejected(raw: RawRecord, bad_uuid: str) -> None:
 def test_uuid_is_trimmed_and_lowercased(raw: RawRecord) -> None:
     raw["login"]["uuid"] = "  18D3D4F8-1B6C-480D-BE6F-51DE14BC1017 "
     assert clean_record(raw).uuid == "18d3d4f8-1b6c-480d-be6f-51de14bc1017"
+
+
+def test_registered_date_missing_is_rejected(raw: RawRecord) -> None:
+    del raw["registered"]["date"]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+    assert "registered_at" in exc.value.reason
+
+
+def test_registered_object_missing_is_rejected(raw: RawRecord) -> None:
+    del raw["registered"]
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.MISSING_FIELD
+
+
+def test_registered_date_wrong_type_is_rejected(raw: RawRecord) -> None:
+    raw["registered"]["date"] = 12345
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.WRONG_TYPE
+    assert "registered_at" in exc.value.reason
+
+
+@pytest.mark.parametrize(
+    "bad_date",
+    [
+        "yesterday",
+        "",
+        "   ",
+        "2020-13-45T99:00:00Z",
+        "2020-12-29T23:12:33",
+        "2020-12-29",
+    ],
+)
+def test_registered_date_invalid_is_rejected(raw: RawRecord, bad_date: str) -> None:
+    raw["registered"]["date"] = bad_date
+    with pytest.raises(RecordRejected) as exc:
+        clean_record(raw)
+    assert exc.value.code == RejectCode.INVALID_VALUE
+    assert "registered_at" in exc.value.reason
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("2020-12-29T23:12:33.098Z", "2020-12-29T23:12:33Z"),
+        ("2020-12-29T23:12:33.999Z", "2020-12-29T23:12:33Z"),
+        ("2020-12-29T23:12:33+02:00", "2020-12-29T21:12:33Z"),
+        ("2020-12-29T23:12:33-05:00", "2020-12-30T04:12:33Z"),
+        ("  2020-12-29T23:12:33Z ", "2020-12-29T23:12:33Z"),
+    ],
+)
+def test_registered_date_is_converted_to_utc(
+    raw: RawRecord, text: str, expected: str
+) -> None:
+    raw["registered"]["date"] = text
+    assert clean_record(raw).registered_at == expected
