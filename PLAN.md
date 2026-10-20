@@ -246,7 +246,7 @@ Sync complete (source: file tests/fixtures/integration/day1.json, db: customers.
   rejected:    2
 Rejected records:
   #10  uuid=7a1c2b3d…  missing_field  missing field: email
-  #11  uuid=Missing  duplicate  duplicate uuid (first seen at #4)
+  #11  uuid=349e0000…  duplicate  duplicate uuid (first seen at #4) 
 ```
 
 - `main` prints the `Sync complete` line. `format_summary` prints the four counts and the rejection lines.
