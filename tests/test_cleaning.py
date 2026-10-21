@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from customer_sync.cleaning import RecordRejected, clean_record
-from customer_sync.contracts import Customer, RawRecord, RejectCode
+from customer_sync.cleaning import RecordRejected, clean_record, clean_records
+from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
 
 
 @pytest.fixture
@@ -336,3 +336,95 @@ def test_messy_fixture_normalised_values(messy: list[RawRecord]) -> None:
     assert clean_record(messy[18]).email == "foo@bar.com"
     assert clean_record(messy[19]).phone is None
     assert clean_record(messy[20]).phone == "5551234567"
+
+
+# clean_records: batch and duplicates (J3)
+
+EXPECTED_BATCH_REJECTIONS = [
+    (10, RejectCode.MISSING_FIELD),
+    (11, RejectCode.WRONG_TYPE),
+    (12, RejectCode.INVALID_VALUE),
+    (13, RejectCode.INVALID_VALUE),
+    (14, RejectCode.MISSING_FIELD),
+    (15, RejectCode.INVALID_VALUE),
+    (16, RejectCode.DUPLICATE),
+    (17, RejectCode.DUPLICATE),
+]
+EXPECTED_ACCEPTED_INDEXES = [*range(10), 18, 19, 20]
+
+
+def test_batch_matches_fixture_readme(messy: list[RawRecord]) -> None:
+    result = clean_records(messy)
+    assert len(result.accepted) == 13
+    assert [(r.index, r.code) for r in result.rejected] == EXPECTED_BATCH_REJECTIONS
+
+
+def test_batch_keeps_accepted_in_input_order(messy: list[RawRecord]) -> None:
+    expected = [clean_record(messy[i]) for i in EXPECTED_ACCEPTED_INDEXES]
+    assert clean_records(messy).accepted == expected
+
+
+def test_batch_every_rejection_has_reason_and_raw(messy: list[RawRecord]) -> None:
+    for rejection in clean_records(messy).rejected:
+        assert rejection.reason.strip()
+        assert rejection.raw is messy[rejection.index]
+
+
+def test_batch_fixture_rejection_details(messy: list[RawRecord]) -> None:
+    by_index = {r.index: r for r in clean_records(messy).rejected}
+    assert by_index[14].uuid is None
+    assert by_index[16].uuid == "18d3d4f8-1b6c-480d-be6f-51de14bc1017"
+    assert by_index[16].reason == "duplicate uuid (first seen at #0)"
+    assert by_index[17].reason == "duplicate email (first seen at #1)"
+
+
+def test_empty_batch_gives_empty_result() -> None:
+    assert clean_records([]) == CleanResult(accepted=[], rejected=[])
+
+
+def test_duplicate_uuid_keeps_first(raw: RawRecord) -> None:
+    second = copy.deepcopy(raw)
+    second["email"] = "someone.else@example.com"
+    result = clean_records([raw, second])
+    assert result.accepted == [clean_record(raw)]
+    [rejection] = result.rejected
+    assert (rejection.index, rejection.code) == (1, RejectCode.DUPLICATE)
+    assert rejection.reason == "duplicate uuid (first seen at #0)"
+
+
+def test_duplicate_email_under_new_uuid_keeps_first(raw: RawRecord) -> None:
+    second = copy.deepcopy(raw)
+    second["login"]["uuid"] = "10000000-0000-4000-8000-000000000001"
+    second["email"] = "  BEAUDINE.Ottevanger@Example.com "  # same address once normalised
+    result = clean_records([raw, second])
+    assert result.accepted == [clean_record(raw)]
+    [rejection] = result.rejected
+    assert (rejection.index, rejection.code) == (1, RejectCode.DUPLICATE)
+    assert rejection.uuid == "10000000-0000-4000-8000-000000000001"
+    assert rejection.reason == "duplicate email (first seen at #0)"
+
+
+def test_rejected_record_does_not_block_later_uuid(raw: RawRecord) -> None:
+    broken = copy.deepcopy(raw)
+    del broken["email"]
+    result = clean_records([broken, raw])
+    assert result.accepted == [clean_record(raw)]
+    assert [(r.index, r.code) for r in result.rejected] == [(0, RejectCode.MISSING_FIELD)]
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("  18D3D4F8-1B6C-480D-BE6F-51DE14BC1017 ", "18d3d4f8-1b6c-480d-be6f-51de14bc1017"),
+        ("not-a-uuid", "not-a-uuid"),
+        ("   ", None),
+        (42, None),
+    ],
+)
+def test_rejection_uuid_is_read_when_possible(
+    raw: RawRecord, value: object, expected: str | None
+) -> None:
+    raw["login"]["uuid"] = value
+    del raw["email"]  # make sure the record is rejected
+    [rejection] = clean_records([raw]).rejected
+    assert rejection.uuid == expected

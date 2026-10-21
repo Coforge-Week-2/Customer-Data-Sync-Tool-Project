@@ -1,13 +1,13 @@
 """Turn raw API records into customers. Owner: Julian.
 
-clean_record is implemented. clean_records (batch and duplicates) is still a stub.
+clean_record cleans one record. clean_records cleans a batch and rejects duplicates.
 """
 
 import re
 import uuid
 from datetime import UTC, datetime
 
-from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode
+from customer_sync.contracts import CleanResult, Customer, RawRecord, RejectCode, Rejection
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -115,6 +115,42 @@ def clean_record(raw: RawRecord) -> Customer:
     )
 
 
+def _readable_uuid(raw: RawRecord) -> str | None:
+    """Best-effort uuid for a rejection report. None if absent, not text, or blank."""
+    value = _get(raw, "login", "uuid")
+    if not isinstance(value, str):
+        return None
+    return value.strip().lower() or None
+
+
 def clean_records(raws: list[RawRecord]) -> CleanResult:
-    """Clean a batch. Duplicate uuid or email in the batch is rejected."""
-    raise NotImplementedError
+    """Clean a batch. Bad records and in-batch duplicates are rejected; first occurrence wins."""
+    accepted: list[Customer] = []
+    rejected: list[Rejection] = []
+    first_uuid: dict[str, int] = {}
+    first_email: dict[str, int] = {}
+
+    for index, raw in enumerate(raws):
+        try:
+            customer = clean_record(raw)
+        except RecordRejected as exc:
+            rejected.append(Rejection(index, _readable_uuid(raw), exc.code, exc.reason, raw))
+            continue
+
+        seen_at = first_uuid.get(customer.uuid)
+        if seen_at is not None:
+            reason = f"duplicate uuid (first seen at #{seen_at})"
+            rejected.append(Rejection(index, customer.uuid, RejectCode.DUPLICATE, reason, raw))
+            continue
+
+        seen_at = first_email.get(customer.email)
+        if seen_at is not None:
+            reason = f"duplicate email (first seen at #{seen_at})"
+            rejected.append(Rejection(index, customer.uuid, RejectCode.DUPLICATE, reason, raw))
+            continue
+
+        first_uuid[customer.uuid] = index
+        first_email[customer.email] = index
+        accepted.append(customer)
+
+    return CleanResult(accepted=accepted, rejected=rejected)
