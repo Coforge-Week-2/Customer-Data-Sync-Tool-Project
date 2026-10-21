@@ -245,9 +245,14 @@ Sync complete (source: file tests/fixtures/integration/day1.json, db: customers.
   unchanged:   0
   rejected:    2
 Rejected records:
-  #10  uuid=7a1c…  missing_field  missing field: email
-  #11  uuid=3f9e…  duplicate      duplicate uuid (first seen at #4)
+  #10  uuid=7a1c2b3d…  missing_field  missing field: email
+  #11  uuid=349e0000…  duplicate  duplicate uuid (first seen at #4) 
 ```
+
+- `main` prints the `Sync complete` line. `format_summary` prints the four counts and the rejection lines.
+- A file run says `source: file <path>`. An API run says `source: api seed=<seed>`.
+- A shown uuid is the first 8 characters plus `…`. If the rejection has no uuid, the line says `uuid=Missing`.
+- `FileSource` and `RandomUserClient` are created inside the same `try` as the sync. A `SyncError` from that setup exits `1`, same as a failure during fetch, clean, or store.
 
 ### 2.6 Changing a contract after freeze
 
@@ -357,7 +362,7 @@ CREATE TABLE IF NOT EXISTS customers (
 | PR | Branch | Content | Tests |
 |---|---|---|---|
 | A0 | `ansh/skeleton` | Phase 0 (§1): tree, contracts, stubs, CI, CODEOWNERS, PR template, `check.sh`, raw fixture, AGENTS.md §3 + README decisions | smoke test |
-| A1 | `ansh/cli-core` | `argparse`, `run_sync`, `format_summary`, exit codes | with fakes: 4 counts summed correctly; rejections printed; `SyncError` → exit 1; `--from-file` chooses `FileSource` |
+| A1 | `ansh/cli-core` | `argparse`, `run_sync`, `format_summary`, exit codes | with fakes: 4 counts summed correctly; rejections printed (8-character uuid, `Missing` when absent); success exits 0 and prints the header; `--quiet-rejections` hides detail lines; `SyncError` during setup or sync → exit 1; `--from-file` chooses `FileSource` |
 | A2 | `ansh/integration-fixtures` | `integration/day1.json` (10 valid + 2 invalid) and `integration/day2_edited.json` (same 10 with one phone changed + 1 new + same 2 invalid); `test_integration.py` with `@pytest.mark.xfail(raises=NotImplementedError, strict=False)` | day1 → 10/0/0/2; day2 on same DB → 1/1/9/2; day1 twice → 0/0/10/2 |
 | A3 | `ansh/readme` | README: install, usage, `--from-file`, schema table, identifier, summary example, nightly scheduling (cron / Task Scheduler), testing | — |
 | A4 | `ansh/integration-enable` (Phase 2) | Remove `xfail`; run `main(["--from-file", …, "--db", tmp])` end to end | integration test passes for real |
@@ -531,7 +536,7 @@ All tasks live in the Linear project **[Customer Data Sync Tool](https://linear.
 | N3 | [JUL-20](https://linear.app/julianmarchingtoncoforge/issue/JUL-20) | Idempotency + rollback | Nikita | N2 | `nikita/storage-robustness` | Re-run stable; mid-batch failure leaves DB unchanged |
 | N4 | [JUL-21](https://linear.app/julianmarchingtoncoforge/issue/JUL-21) | Storage docs, demo, Q&A | Nikita | N3 | `nikita/storage-docs` | Before/after DB queries in docs |
 | **Ansh** | | | | | | |
-| A1 | [JUL-22](https://linear.app/julianmarchingtoncoforge/issue/JUL-22) | CLI core with fakes | Ansh | P0-3 | `ansh/cli-core` | Summary/exit-code tests pass with fakes |
+| A1 | [JUL-22](https://linear.app/julianmarchingtoncoforge/issue/JUL-22) | CLI core with fakes | Ansh | P0-3 | `ansh/cli-core` | Summary/exit-code tests pass with fakes, including quiet mode and a setup `SyncError` |
 | A2 | [JUL-23](https://linear.app/julianmarchingtoncoforge/issue/JUL-23) | Integration fixtures + xfail test | Ansh | P0-3 | `ansh/integration-fixtures` | Test encodes 10/0/0/2 and 1/1/9/2; CI green |
 | A3 | [JUL-24](https://linear.app/julianmarchingtoncoforge/issue/JUL-24) | README | Ansh | P0-3 | `ansh/readme` | Usage, schema, identifier, scheduling documented |
 | A4 | [JUL-25](https://linear.app/julianmarchingtoncoforge/issue/JUL-25) | Enable integration test | Ansh | V4, J3, N3, A1, A2 | `ansh/integration-enable` | xfail removed; passes on main |
