@@ -337,6 +337,7 @@ def test_messy_fixture_normalised_values(messy: list[RawRecord]) -> None:
     assert clean_record(messy[19]).phone is None
     assert clean_record(messy[20]).phone == "5551234567"
 
+
 # clean_records: batch and duplicates (J3)
 
 EXPECTED_BATCH_REJECTIONS = [
@@ -375,6 +376,7 @@ def test_batch_fixture_rejection_details(messy: list[RawRecord]) -> None:
     assert by_index[16].uuid == "18d3d4f8-1b6c-480d-be6f-51de14bc1017"
     assert by_index[16].reason == "duplicate uuid (first seen at #0)"
     assert by_index[17].reason == "duplicate email (first seen at #1)"
+
 
 def test_empty_batch_gives_empty_result() -> None:
     assert clean_records([]) == CleanResult(accepted=[], rejected=[])
