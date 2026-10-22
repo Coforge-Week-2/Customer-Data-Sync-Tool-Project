@@ -1,7 +1,6 @@
 """End-to-end sync test. Owner: Ansh.
 
-Saved response -> clean -> temp SQLite -> summary. Expected to fail
-until the real cleaning batch lands.
+Saved response -> clean -> temp SQLite -> summary.
 """
 
 from pathlib import Path
@@ -19,11 +18,6 @@ def _counts(summary: SyncSummary) -> tuple[int, int, int, int]:
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(
-    raises=NotImplementedError,
-    strict=False,
-    reason="waiting for real modules",
-)
 def test_day1_then_day2_on_same_database(fixtures_dir: Path, tmp_path: Path) -> None:
     """Empty database, then the edited day-2 file on that same database."""
     day1 = fixtures_dir / "integration" / "day1.json"
@@ -36,11 +30,6 @@ def test_day1_then_day2_on_same_database(fixtures_dir: Path, tmp_path: Path) -> 
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(
-    raises=NotImplementedError,
-    strict=False,
-    reason="waiting for real modules",
-)
 def test_day1_second_run_is_unchanged(fixtures_dir: Path, tmp_path: Path) -> None:
     """Running day1 again stores nothing new."""
     path = fixtures_dir / "integration" / "day1.json"
@@ -51,11 +40,6 @@ def test_day1_second_run_is_unchanged(fixtures_dir: Path, tmp_path: Path) -> Non
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(
-    raises=NotImplementedError,
-    strict=False,
-    reason="waiting for real modules",
-)
 def test_main_from_file_returns_zero(fixtures_dir: Path, tmp_path: Path) -> None:
     """The CLI finishes a from-file sync with exit code 0."""
     path = str(fixtures_dir / "integration" / "day1.json")
