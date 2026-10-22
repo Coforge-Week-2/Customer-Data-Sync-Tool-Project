@@ -29,10 +29,15 @@ def _counts(app: SyncApp) -> tuple[int, ...]:
 
 
 async def _log_text(pilot: Pilot[None]) -> str:
-    """Open the Run log tab (a hidden log keeps its lines until shown) and read it."""
+    """Open the Run log tab (a hidden log keeps its lines until shown) and read it.
+
+    Whitespace is collapsed so a line wrapped at a different width (e.g. a longer
+    temp path on Linux CI) cannot split a phrase the test looks for.
+    """
     pilot.app.query_one(TabbedContent).active = "log-tab"
     await pilot.pause()
-    return "\n".join(line.text for line in pilot.app.query_one("#log", RichLog).lines)
+    lines = pilot.app.query_one("#log", RichLog).lines
+    return " ".join(" ".join(line.text for line in lines).split())
 
 
 def test_file_sync_shows_counts_rejections_and_rows(fixtures_dir: Path, tmp_path: Path) -> None:
