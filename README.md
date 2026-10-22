@@ -90,6 +90,19 @@ Rejected records:
 
 An API run prints `source: api seed=<seed>`. A shown uuid is the first 8 characters plus `…`. If the record had no uuid, the line says `uuid=Missing`.
 
+## Terminal UI
+
+An optional full-screen view of the same sync. It uses the same source, cleaner and database code as the CLI, so a run gives the same counts.
+
+```bash
+pip install -e ".[tui]"
+customer-sync-tui
+```
+
+Pick **Saved file** or **Live API** on the left, set the database path, and press **Run sync** (or `r`). The four counts appear as large numbers. The tabs show the rejected records with reasons, every stored customer, and a log of each run. `Ctrl+P` switches the colour theme, and `q` quits. Run it from the repository root so the default file path `tests/fixtures/integration/day1.json` resolves.
+
+![Terminal UI after a day-1 then day-2 sync](docs/tui.svg)
+
 ## Customer record schema
 
 Clean records match `Customer` in `src/customer_sync/contracts.py`. Safe normalisation only: trim, lowercase the email, and turn a numeric phone into text. Anything else is rejected. A missing value is never invented.

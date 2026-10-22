@@ -9,6 +9,7 @@ requires-python = ">=3.11"
 dependencies = ["requests>=2.31"]
 
 [project.optional-dependencies]
+tui = ["textual>=8.2,<9"]
 dev = [
     "pytest>=8",
     "pytest-cov>=5",
@@ -16,17 +17,20 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
     "types-requests",
+    "textual>=8.2,<9",
 ]
 
 [project.scripts]
 customer-sync = "customer_sync.cli:main"
+customer-sync-tui = "customer_sync.tui:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers --disable-socket"
+# --allow-unix-socket: asyncio (the TUI tests) needs a local socket pair; internet sockets stay blocked.
+addopts = "-ra --strict-markers --disable-socket --allow-unix-socket"
 markers = [
     "integration: full pipeline test (saved response -> temp SQLite -> summary)",
 ]

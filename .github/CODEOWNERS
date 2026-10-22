@@ -4,6 +4,9 @@
 /tests/fixtures/api/                @this-ved-dev
 /scripts/capture_fixture.py         @this-ved-dev
 /docs/api-client.md                 @this-ved-dev
+/src/customer_sync/tui.py           @this-ved-dev
+/tests/test_tui.py                  @this-ved-dev
+/docs/tui.svg                       @this-ved-dev
 /src/customer_sync/cleaning.py      @Julian-Coforge
 /tests/test_cleaning.py             @Julian-Coforge
 /tests/fixtures/cleaning/           @Julian-Coforge
